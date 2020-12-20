@@ -11,6 +11,7 @@ using System.CommandLine.Invocation;
 using System.CommandLine.IO;
 using System.CommandLine.Parsing;
 using System.ComponentModel;
+using System.Configuration;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
@@ -33,6 +34,16 @@ namespace CP77Tools
             ServiceLocator.Default.RegisterType<IMainController, MainController>();
             var logger = ServiceLocator.Default.ResolveType<ILoggerService>();
 
+            try
+            {
+                OodleValidator.Validate();
+            }
+            catch (ConfigurationException e)
+            {
+                Console.WriteLine(e.Message);
+                await WriteLogFile(e.Message);
+                return;
+            }
 
             // get csv data
             Console.WriteLine("Loading Hashes...");
@@ -166,18 +177,19 @@ namespace CP77Tools
                 if (string.IsNullOrEmpty(logger.ErrorLogStr))
                     return;
 
+                await WriteLogFile(logger.ErrorLogStr);
+            }
+
+            async Task WriteLogFile(string message)
+            {
                 var t = DateTime.Now.ToString("yyyyMMddHHmmss");
                 var fi = new FileInfo(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
                     $"errorlogs/log_{t}.txt"));
                 if (fi.Directory != null)
                 {
                     Directory.CreateDirectory(fi.Directory.FullName);
-                    var log = logger.ErrorLogStr;
+                    var log = message;
                     await File.WriteAllTextAsync(fi.FullName, log);
-                }
-                else
-                {
-                    
                 }
             }
 

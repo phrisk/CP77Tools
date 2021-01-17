@@ -29,7 +29,7 @@ jobs:
         url: "https://cdn.discordapp.com/attachments/786130090102358017/786130170720682024/oo2core_8_win64.dll"
         target: ./CP77Tools/
     - name: Build
-      run: dotnet build --configuration Release --no-restore -p:Version=${{ env.NIGHTLY_VERSION }}.${{ env.GITHUB_RUN_NUMBER }}-nightly
+      run: dotnet build --configuration Release --no-restore -p:Version=${{ env.NIGHTLY_VERSION }}-nightly
     - name: Upload a Build Artifact
       uses: actions/upload-artifact@v2.2.1
       with:

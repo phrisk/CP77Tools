@@ -1,9 +1,9 @@
 name: Nightly
 on:
   push:
-    branches: [ nightly ]
+    branches: [ versioned-release ]
   pull_request:
-    branches: [ nightly ]
+    branches: [ versioned-release ]
   workflow_dispatch:
 
 jobs:
@@ -12,6 +12,9 @@ jobs:
     runs-on: windows-latest
 
     steps:
+    - name: Get current date
+      id: date
+      run: echo "name=$(date +'%Y-%m-%d')" >> $GITHUB_ENV
     - uses: actions/checkout@v2
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v1
@@ -26,7 +29,7 @@ jobs:
         url: "https://cdn.discordapp.com/attachments/786130090102358017/786130170720682024/oo2core_8_win64.dll"
         target: ./CP77Tools/
     - name: Build
-      run: dotnet build --configuration Release --no-restore
+      run: dotnet build --configuration Release --no-restore -p:Version=${{ steps.date.outputs.date }}-nightly
     - name: Upload a Build Artifact
       uses: actions/upload-artifact@v2.2.1
       with:

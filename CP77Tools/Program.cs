@@ -4,15 +4,13 @@ using System.Threading.Tasks;
 using Catel.IoC;
 using System.CommandLine;
 using System.ComponentModel;
-using System.Configuration;
 using System.IO;
 using System.Reflection;
-using CP77Tools.Commands;
 using CP77Tools.Extensions;
 using Luna.ConsoleProgressBar;
 using Microsoft.Win32;
-using WolvenKit.Common.Oodle;
 using WolvenKit.Common.Services;
+using RootCommand = CP77Tools.Commands.RootCommand;
 
 namespace CP77Tools
 {
@@ -51,20 +49,7 @@ namespace CP77Tools
                 Console.ResetColor();
             };
 
-            var rootCommand = new RootCommand
-            {
-                new UnbundleCommand(),
-                new UncookCommand(),
-                new RebuildCommand(),
-                new PackCommand(),
-                new ExportCommand(),
-                
-                new DumpCommand(),
-                new CR2WCommand(),
-                
-                new HashCommand(),
-                new OodleCommand(),
-            };
+            var rootCommand = new RootCommand();
 
             //await ConsoleFunctions.UpdateHashesAsync();
             hashService.ReloadLocally();
@@ -167,8 +152,11 @@ namespace CP77Tools
 
         private delegate void StrDelegate(string value);
 
-        private static string TryGetGameInstallDir()
+        private static string GameBinDir = null;
+        public static string TryGetGameInstallDir()
         {
+            if (!string.IsNullOrEmpty(GameBinDir)) return GameBinDir;
+            
             var cp77BinDir = "";
             var cp77exe = "";
             // check for CP77_DIR environment variable first
@@ -238,6 +226,8 @@ namespace CP77Tools
                 return null;
             if (!File.Exists(Path.Combine(cp77BinDir, "Cyberpunk2077.exe")))
                 return null;
+
+            GameBinDir = cp77BinDir;
 
             return cp77BinDir;
         }
